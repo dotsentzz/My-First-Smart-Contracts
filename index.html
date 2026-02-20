@@ -137,44 +137,45 @@
                 const address = await signer.getAddress();
                 document.getElementById('walletAddress').innerText = address.slice(0, 6) + "..." + address.slice(-4);
 
-                // 1. Баланс LOVELERA
+                // 1. Токены и Банк (оставляем как было)
                 const leraContract = new ethers.Contract(LERA_ADDR, LERA_ABI, provider);
                 const leraBal = await leraContract.balanceOf(address);
                 document.getElementById('tokenBalance').innerText = ethers.formatUnits(leraBal, 18) + " LERA";
 
-                // 2. Баланс БАНКА
                 const bankContract = new ethers.Contract(BANK_ADDR, BANK_ABI, provider);
                 const bankBal = await bankContract.getBalance();
-                document.getElementById('bankBalance').innerText = ethers.formatEther(bankBal);
+                document.getElementById('bankBalance').innerText = ethers.formatEther(bankBal) + " ETH";
 
-                // 3. ПОКАЗЫВАЕМ NFT С КАРТИНКАМИ
+                // 2. ЗАГРУЗКА NFT (Магия здесь!)
                 const nftContract = new ethers.Contract(NFT_ADDR, NFT_ABI, provider);
                 const nftBal = await nftContract.balanceOf(address);
                 document.getElementById('nftBalance').innerText = nftBal.toString() + " PUPS";
 
-                // Сюда будем добавлять картинки
                 const nftGallery = document.getElementById('nftGallery');
-                if (nftGallery) nftGallery.innerHTML = ""; // Очищаем старые
+                if (nftGallery) nftGallery.innerHTML = ""; // Чистим перед загрузкой
 
-                // Если у тебя в контракте нет tokenOfOwnerByIndex, мы просто попробуем загрузить первую
                 if (nftBal > 0n) {
-                    // Для теста загрузим картинку первого токена (обычно ID 1 или 0)
-                    try {
-                        const uri = await nftContract.tokenURI(1); // Предположим, у тебя ID 1
-                        const imgUrl = uri.replace("ipfs://", "https://ipfs.io/ipfs/");
+                    // Прямо используем твой tokenURI, раз мы его нашли!
+                    const rawUri = "ipfs://bafkreiewsf5dpflmi6aszamwshkk3iyygnkxiae4txv2gc7onrrvmvxx3e";
+                    // Превращаем в ссылку, которую поймет браузер
+                    const cleanUrl = rawUri.replace("ipfs://", "https://ipfs.io/ipfs/");
 
-                        const img = document.createElement('img');
-                        img.src = imgUrl;
-                        img.style.width = "100px";
-                        img.style.borderRadius = "10px";
-                        img.style.marginTop = "10px";
-                        img.style.border = "2px solid #ff00ff";
-                        document.querySelector('.stat-card:nth-child(2)').appendChild(img);
-                    } catch (e) { console.log("Can't find image for token 1"); }
+                    // Создаем элемент картинки
+                    const img = document.createElement('img');
+                    img.src = cleanUrl;
+                    img.style.width = "200px"; // Делаем покрупнее, чтобы рассмотреть!
+                    img.style.borderRadius = "20px";
+                    img.style.border = "3px solid #ff00ff";
+                    img.style.boxShadow = "0 0 20px #ff00ff";
+                    img.style.marginTop = "20px";
+
+                    // Добавляем в карточку
+                    document.querySelector('.stat-card:nth-child(2)').appendChild(img);
                 }
 
+                console.log("Your Empire is shining, Queen!");
             } catch (e) {
-                console.error(e);
+                console.error("Oh no, something's wrong:", e);
             }
         }
         async function depositEth() {
