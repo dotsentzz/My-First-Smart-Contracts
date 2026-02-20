@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DIAPUPS52 Admin Panel</title>
+    <style>
+        body {
+            background: #0f0f0f;
+            color: #ff00ff;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 20px;
+            cursor: pointer;
+            background: #ff00ff;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            box-shadow: 0 0 20px #ff00ff;
+            transition: 0.3s;
+        }
+
+            button:hover {
+                transform: scale(1.1);
+                box-shadow: 0 0 40px #ff00ff;
+            }
+
+        #walletAddress {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #00ffff;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>DIAPUPS52 DASHBOARD 👑</h1>
+    <button onclick="connectWallet()">CONNECT WALLET</button>
+    <div id="walletAddress">Not connected</div>
+
+    <script>
+        async function connectWallet() {
+            if (window.ethereum) {
+                try {
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    const account = accounts[0];
+
+                    // Вот эта магия меняет текст на странице:
+                    document.getElementById('walletAddress').innerText = "Connected: " + account;
+
+                    alert("YASS QUEEN! Connected: " + account); // Чтобы ты точно увидела успех
+                    console.log("Connected!", account);
+                } catch (error) {
+                    console.error(error);
+                    alert("Something went wrong, babe.");
+                }
+            } else {
+                alert("Please install a wallet!");
+            }
+        }
+    </script>
+</body>
+</html>
