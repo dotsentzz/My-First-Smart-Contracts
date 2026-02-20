@@ -47,20 +47,25 @@
 
     <script>
         async function connectWallet() {
-            if (window.ethereum) { // Проверяем, есть ли Метамаск
+            if (window.ethereum) {
                 try {
-                    // Просим Метамаск дать адрес
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                     const account = accounts[0];
+                    
+                    // Вот эта магия меняет текст на странице:
                     document.getElementById('walletAddress').innerText = "Connected: " + account;
-                    console.log("Welcome, Queen!", account);
+                    
+                    alert("YASS QUEEN! Connected: " + account); // Чтобы ты точно увидела успех
+                    console.log("Connected!", account);
                 } catch (error) {
+                    console.error(error);
                     alert("Something went wrong, babe.");
                 }
             } else {
-                alert("Install MetaMask, please!");
+                alert("Please install a wallet!");
             }
         }
     </script>
 </body>
+
 </html>
