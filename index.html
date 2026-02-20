@@ -114,16 +114,18 @@
         const BANK_ADDR = "0x917986406b8cff0BA2eb5E35c770E3749Adae790";
         const NFT_ADDR = "0x811F43828b100037C9a56682EeAB007173a55dAA";
 
-        // ABI для токенов (Lovelera)
         const LERA_ABI = ["function balanceOf(address) view returns (uint256)", "function decimals() view returns (uint8)"];
 
-        // Твой ABI для NFT (используем balanceOf)
-        const NFT_ABI = [{ "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }], "name": "balanceOf", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }];
+        // Расширяем ABI для NFT, чтобы достать ссылку на картинку
+        const NFT_ABI = [
+            "function balanceOf(address) view returns (uint256)",
+            "function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)",
+            "function tokenURI(uint256 tokenId) view returns (string)"
+        ];
 
-        // Твой ABI для Банка (используем getBalance и deposit)
         const BANK_ABI = [
-            { "inputs": [], "name": "getBalance", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
-            { "inputs": [], "name": "deposit", "outputs": [], "stateMutability": "payable", "type": "function" }
+            "function getBalance() view returns (uint256)",
+            "function deposit() payable"
         ];
 
         async function init() {
@@ -140,23 +142,41 @@
                 const leraBal = await leraContract.balanceOf(address);
                 document.getElementById('tokenBalance').innerText = ethers.formatUnits(leraBal, 18) + " LERA";
 
-                // 2. Баланс NFT
-                const nftContract = new ethers.Contract(NFT_ADDR, NFT_ABI, provider);
-                const nftBal = await nftContract.balanceOf(address);
-                document.getElementById('nftBalance').innerText = nftBal.toString() + " PUPS";
-
-                // 3. Баланс БАНКА
+                // 2. Баланс БАНКА
                 const bankContract = new ethers.Contract(BANK_ADDR, BANK_ABI, provider);
                 const bankBal = await bankContract.getBalance();
                 document.getElementById('bankBalance').innerText = ethers.formatEther(bankBal);
 
-                console.log("Welcome to your Kingdom!");
+                // 3. ПОКАЗЫВАЕМ NFT С КАРТИНКАМИ
+                const nftContract = new ethers.Contract(NFT_ADDR, NFT_ABI, provider);
+                const nftBal = await nftContract.balanceOf(address);
+                document.getElementById('nftBalance').innerText = nftBal.toString() + " PUPS";
+
+                // Сюда будем добавлять картинки
+                const nftGallery = document.getElementById('nftGallery');
+                if (nftGallery) nftGallery.innerHTML = ""; // Очищаем старые
+
+                // Если у тебя в контракте нет tokenOfOwnerByIndex, мы просто попробуем загрузить первую
+                if (nftBal > 0n) {
+                    // Для теста загрузим картинку первого токена (обычно ID 1 или 0)
+                    try {
+                        const uri = await nftContract.tokenURI(1); // Предположим, у тебя ID 1
+                        const imgUrl = uri.replace("ipfs://", "https://ipfs.io/ipfs/");
+
+                        const img = document.createElement('img');
+                        img.src = imgUrl;
+                        img.style.width = "100px";
+                        img.style.borderRadius = "10px";
+                        img.style.marginTop = "10px";
+                        img.style.border = "2px solid #ff00ff";
+                        document.querySelector('.stat-card:nth-child(2)').appendChild(img);
+                    } catch (e) { console.log("Can't find image for token 1"); }
+                }
+
             } catch (e) {
                 console.error(e);
-                alert("Error: " + e.message);
             }
         }
-
         async function depositEth() {
             const amount = document.getElementById('depositAmount').value;
             if (!amount || amount <= 0) return alert("How much ETH, babe?");
