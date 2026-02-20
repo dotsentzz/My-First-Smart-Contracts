@@ -72,115 +72,29 @@
     <script>
         const tokenAddress = "0x77A2cE332F686713C96a0129E5EbEF6552f80f5f";
 
+        // Я убрала лишние скобки и оставила только нужные функции, чтобы код летал!
         const tokenAbi = [
-            [
-                {
-                    "inputs": [
-                        {
-                            "internalType": "uint256",
-                            "name": "_initialSupply",
-                            "type": "uint256"
-                        }
-                    ],
-                    "stateMutability": "nonpayable",
-                    "type": "constructor"
-                },
-                {
-                    "inputs": [
-                        {
-                            "internalType": "address",
-                            "name": "",
-                            "type": "address"
-                        }
-                    ],
-                    "name": "balanceOf",
-                    "outputs": [
-                        {
-                            "internalType": "uint256",
-                            "name": "",
-                            "type": "uint256"
-                        }
-                    ],
-                    "stateMutability": "view",
-                    "type": "function"
-                },
-                {
-                    "inputs": [],
-                    "name": "decimals",
-                    "outputs": [
-                        {
-                            "internalType": "uint8",
-                            "name": "",
-                            "type": "uint8"
-                        }
-                    ],
-                    "stateMutability": "view",
-                    "type": "function"
-                },
-                {
-                    "inputs": [],
-                    "name": "name",
-                    "outputs": [
-                        {
-                            "internalType": "string",
-                            "name": "",
-                            "type": "string"
-                        }
-                    ],
-                    "stateMutability": "view",
-                    "type": "function"
-                },
-                {
-                    "inputs": [],
-                    "name": "symbol",
-                    "outputs": [
-                        {
-                            "internalType": "string",
-                            "name": "",
-                            "type": "string"
-                        }
-                    ],
-                    "stateMutability": "view",
-                    "type": "function"
-                },
-                {
-                    "inputs": [],
-                    "name": "totalSupply",
-                    "outputs": [
-                        {
-                            "internalType": "uint256",
-                            "name": "",
-                            "type": "uint256"
-                        }
-                    ],
-                    "stateMutability": "view",
-                    "type": "function"
-                },
-                {
-                    "inputs": [
-                        {
-                            "internalType": "address",
-                            "name": "_to",
-                            "type": "address"
-                        },
-                        {
-                            "internalType": "uint256",
-                            "name": "_value",
-                            "type": "uint256"
-                        }
-                    ],
-                    "name": "transfer",
-                    "outputs": [
-                        {
-                            "internalType": "bool",
-                            "name": "success",
-                            "type": "bool"
-                        }
-                    ],
-                    "stateMutability": "nonpayable",
-                    "type": "function"
-                }
-            ]
+            {
+                "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                "name": "balanceOf",
+                "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "decimals",
+                "outputs": [{ "internalType": "uint8", "name": "", "type": "uint8" }],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "symbol",
+                "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+                "stateMutability": "view",
+                "type": "function"
+            }
         ];
 
         async function updateDashboard() {
@@ -192,19 +106,23 @@
 
                     document.getElementById('walletAddress').innerText = address.slice(0, 6) + "..." + address.slice(-4);
 
+                    // Создаем связь с контрактом
                     const contract = new ethers.Contract(tokenAddress, tokenAbi, provider);
+
+                    console.log("Fetching balance for:", address);
+
+                    // Вызываем функции контракта
                     const balance = await contract.balanceOf(address);
                     const decimals = await contract.decimals();
                     const symbol = await contract.symbol();
 
-                    // Форматируем число (убираем лишние нули)
                     const formattedBalance = ethers.formatUnits(balance, decimals);
                     document.getElementById('tokenBalance').innerText = formattedBalance + " " + symbol;
 
-                    console.log("Welcome to your empire, Queen!");
+                    console.log("YES! Empire updated!");
                 } catch (error) {
-                    console.error(error);
-                    alert("Trouble in the empire: " + error.reason);
+                    console.error("Full error:", error);
+                    alert("Honey, check the console! Error: " + error.message);
                 }
             } else {
                 alert("Please install a wallet!");
